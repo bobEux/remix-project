@@ -93,6 +93,26 @@ module.exports = {
         _decimals = 18;
     }`) != -1, 
     'current displayed content is not from the ERC20 source code')
+    })    
+  },
+
+  'Should debug using generated sources': function (browser: NightwatchBrowser) {
+    browser
+    .clickLaunchIcon('solidity')
+    .setSolidityCompilerVersion('soljson-v0.7.2+commit.51b20bc0.js')
+    .clickLaunchIcon('udapp')    
+    .testContracts('withGeneratedSources.sol', sources[2]['browser/withGeneratedSources.sol'], ['A'])
+    .createContract('')
+    .clickInstance(1)
+    .clickFunction('f - transact (not payable)', {types: 'uint256[] ', values: '[]'})
+    .debugTransaction(3)
+    .pause(2000)
+    .click('*[data-id="debuggerTransactionStartButton"]') // stop debugging
+    .click('*[data-id="debugGeneratedSourcesLabel"]') // select debug with generated sources
+    .click('*[data-id="debuggerTransactionStartButton"]') // start debugging
+    .pause(2000)
+    .getEditorValue((content) => {
+      browser.assert.ok(content.indexOf('if slt(sub(dataEnd, headStart), 32) { revert(0, 0) }') != -1, 'current displayed content is not a generated source')
     })
     .end()
   },
@@ -136,7 +156,16 @@ const sources = [
   },
   {
     'browser/externalImport.sol': {content: 'import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol"; contract test7 {}'}
+  },
+  {
+    'browser/withGeneratedSources.sol': {
+      content: `
+      // SPDX-License-Identifier: GPL-3.0
+      pragma experimental ABIEncoderV2; 
+      contract A { 
+        function f(uint[] memory) public returns (uint256) { } 
+      }
+      `
+    }
   }
 ]
-
-
