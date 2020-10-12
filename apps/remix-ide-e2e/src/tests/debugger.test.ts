@@ -103,9 +103,9 @@ module.exports = {
     .clickLaunchIcon('udapp')    
     .testContracts('withGeneratedSources.sol', sources[2]['browser/withGeneratedSources.sol'], ['A'])
     .createContract('')
-    .clickInstance(1)
+    .clickInstance(2)
     .clickFunction('f - transact (not payable)', {types: 'uint256[] ', values: '[]'})
-    .debugTransaction(3)
+    .debugTransaction(4)
     .pause(2000)
     .click('*[data-id="debuggerTransactionStartButton"]') // stop debugging
     .click('*[data-id="debugGeneratedSourcesLabel"]') // select debug with generated sources
