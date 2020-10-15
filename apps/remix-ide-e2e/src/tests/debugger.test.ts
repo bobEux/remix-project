@@ -16,7 +16,7 @@ module.exports = {
   'Should launch debugger': function (browser: NightwatchBrowser) {
     browser.addFile('blah.sol', sources[0]['browser/blah.sol'])
     .clickLaunchIcon('udapp')
-    .waitForElementPresent('*[title="Deploy - transact (not payable)"]')
+    .waitForElementPresent('*[title="Deploy - transact (not payable)"]', 50000)
     .click('*[title="Deploy - transact (not payable)"]')
     .debugTransaction(0)
     .assert.containsText('*[data-id="sidePanelSwapitTitle"]', 'DEBUGGER')
@@ -42,7 +42,7 @@ module.exports = {
     .waitForElementVisible('*[data-id="slider"]')
     .click('*[data-id="slider"]')
     .setValue('*[data-id="slider"]', '50')
-    .pause(2000)
+    .pause(5000)
     .assert.containsText('*[data-id="solidityLocals"]', 'no locals')
     .assert.containsText('*[data-id="stepdetail"]', 'vm trace step:\n92')
   },
@@ -94,6 +94,29 @@ module.exports = {
     }`) != -1, 
     'current displayed content is not from the ERC20 source code')
     })
+  },
+
+  'Should load more solidity locals array': function (browser: NightwatchBrowser) {
+    browser.addFile('locals.sol', sources[2]['browser/locals.sol'])
+    .clickLaunchIcon('udapp')
+    .waitForElementPresent('*[data-id="deployAndRunClearInstances"]')
+    .click('*[data-id="deployAndRunClearInstances"]')
+    .waitForElementPresent('*[title="Deploy - transact (not payable)"]')
+    .click('*[title="Deploy - transact (not payable)"]')
+    .waitForElementPresent('*[data-id="universalDappUiTitleExpander"]')
+    .click('*[data-id="universalDappUiTitleExpander"]')
+    .waitForElementVisible('*[data-id="t - transact (not payable)"]')
+    .click('*[data-id="t - transact (not payable)"]')
+    .debugTransaction(4)
+    .waitForElementVisible('*[data-id="slider"]')
+    .click('*[data-id="slider"]')
+    .setValue('*[data-id="slider"]', '5000')
+    .waitForElementPresent('*[data-id="treeViewTogglearray"]')
+    .click('*[data-id="treeViewTogglearray"]')
+    .waitForElementPresent('*[data-id="treeViewLoadMore"]')
+    .click('*[data-id="treeViewLoadMore"]')
+    .assert.containsText('*[data-id="solidityLocals"]', '149: 0 uint256')
+    .notContainsText('*[data-id="solidityLocals"]', '150: 0 uint256')
     .end()
   },
 
@@ -136,6 +159,22 @@ const sources = [
   },
   {
     'browser/externalImport.sol': {content: 'import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol"; contract test7 {}'}
+  },
+  {
+    'browser/locals.sol': {
+      content: `
+    pragma solidity ^0.6.0;
+
+    contract test {
+      function t () public {
+          uint[] memory array = new uint[](150);
+          for (uint k = 0; k < 150; k++) {
+              array[k] = k;
+          }
+      }
+    }
+        `
+    }
   }
 ]
 
